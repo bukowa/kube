@@ -35,3 +35,13 @@ def get_imports(f: io.TextIOWrapper) -> List[Tuple[str, str]]:
             ret.pop(i)
     return ret
 
+
+def get_interfaces(f: io.TextIOWrapper):
+    data = [x for x in f]
+    targets = []
+    for i, l in enumerate(data[:]):
+        if l.startswith("type"):
+            for ii, ll in data[i:]:
+                if ll.strip() == "}":
+                    # todo
+            return
