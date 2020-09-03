@@ -45,9 +45,8 @@ class File:
 
     @classmethod
     def from_file(cls, file: io.TextIOWrapper):
-        content = file.read()
-        package = utils.get_package_name(content)
-
+        package = utils.get_package_name(file)
+        imports = utils.get_imports(file)
 
 @dataclass
 class Folder:
