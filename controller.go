@@ -28,30 +28,9 @@ func NewController(container Container, hooks Hooks, opts ...Option) Controller 
 	return c
 }
 
-type Option func(*controller)
-
 var WithKubernetesClient = func(namespace string, client *kubernetes.Clientset) Option {
 	return func(c *controller) {
 		c.clientset = NewClientSet(namespace, client)
-	}
-}
-
-var WithClientSet = func(clientset ClientSet) Option {
-	return func(c *controller) {
-		c.clientset = clientset
-	}
-}
-
-var CreateOpts = func(opts v1meta.CreateOptions) Option {
-	return func(c *controller) {
-		c.CreateOpts = opts
-	}
-}
-
-// OptionContainerCopy creates controller copying the Container
-var ContainerCopy = func() Option {
-	return func(c *controller) {
-		c.Container = c.Container.Copy()
 	}
 }
 
