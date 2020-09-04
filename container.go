@@ -5,12 +5,17 @@ import (
 	v1apps "k8s.io/api/apps/v1"
 	v1core "k8s.io/api/core/v1"
 	v1beta1net "k8s.io/api/networking/v1beta1"
+	"log"
 )
 
 // NewContainer creates new container for Kind's
 func NewContainer(kinds ...Kind) *container {
 	binding := make(map[Kind]Resource, len(kinds))
 	for _, kind := range kinds {
+		log.Print(kind)
+		if binding[kind] != nil {
+			panic(fmt.Sprintf("duplicate kind %s", kind))
+		}
 		binding[kind] = kind.Cast()
 	}
 	return &container{
@@ -23,6 +28,14 @@ func NewContainer(kinds ...Kind) *container {
 type container struct {
 	kinds   []Kind
 	binding map[Kind]Resource
+}
+
+func (c *container) Self() Container {
+	return c
+}
+
+func (c *container) Copy() Container {
+	return NewContainer(c.kinds...)
 }
 
 func (c *container) Update(kind Kind, resource Resource) error {
@@ -52,6 +65,15 @@ func (c *container) ForEachKind(f func(Kind)) {
 	for _, kind := range c.kinds {
 		f(kind)
 	}
+}
+
+func (c *container) Namespace(kind Kind) *v1core.Namespace {
+	if res := c.GetResource(kind); res != nil {
+		if v, ok := kind.Cast().(*v1core.Namespace); ok {
+			return v
+		}
+	}
+	return nil
 }
 
 func (c *container) Deployment(kind Kind) *v1apps.Deployment {

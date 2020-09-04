@@ -25,6 +25,14 @@ func (c *clientset) Namespace() string {
 	return c.namespace
 }
 
+func (c *clientset) Client() *kubernetes.Clientset {
+	return c.client
+}
+
+func (c *clientset) Namespaces() typedv1core.NamespaceInterface {
+	return c.client.CoreV1().Namespaces()
+}
+
 func (c *clientset) Deployments() typedv1apps.DeploymentInterface {
 	return c.client.AppsV1().Deployments(c.namespace)
 }

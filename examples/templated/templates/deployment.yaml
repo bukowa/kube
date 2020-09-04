@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Name}}
+spec:
+  selector:
+    matchLabels:
+      app: {{.Label}}
+  template:
+    metadata:
+      labels:
+        app: {{.Label}}
+    spec:
+      containers:
+        - name: alpine
+          command: ["/bin/sh"]
+          args: ["-c", "echo Hello World && sleep infinite"]
