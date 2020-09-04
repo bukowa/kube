@@ -3,6 +3,7 @@ package v1beta1
 import (
 	"context"
 	"github.com/bukowa/kube"
+	"github.com/bukowa/kube/kubernetes"
 	v1beta1net "k8s.io/api/networking/v1beta1"
 	v1meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -24,5 +25,5 @@ func (k Ingress) Create(contr kube.ClientSet, ctx context.Context, res kube.Reso
 	if v, ok := res.(*v1beta1net.Ingress); ok {
 		return contr.Ingresses().Create(ctx, v, opts)
 	}
-	return nil, kube.ErrorInvalidTypeCreate(k)
+	return nil, kubernetes.ErrorInvalidTypeCreate(k)
 }

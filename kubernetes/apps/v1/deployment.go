@@ -3,6 +3,7 @@ package v1
 import (
 	"context"
 	"github.com/bukowa/kube"
+	"github.com/bukowa/kube/kubernetes"
 	v1 "k8s.io/api/apps/v1"
 	v1meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -24,5 +25,5 @@ func (d Deployment) Create(contr kube.ClientSet, ctx context.Context, res kube.R
 	if v, ok := res.(*v1.Deployment); ok {
 		return contr.Deployments().Create(ctx, v, opts)
 	}
-	return nil, kube.ErrorInvalidTypeCreate(d)
+	return nil, kubernetes.ErrorInvalidTypeCreate(d)
 }

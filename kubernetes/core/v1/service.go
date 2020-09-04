@@ -3,6 +3,7 @@ package v1
 import (
 	"context"
 	"github.com/bukowa/kube"
+	"github.com/bukowa/kube/kubernetes"
 	v1core "k8s.io/api/core/v1"
 	v1meta "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -21,7 +22,7 @@ func (k Service) Create(contr kube.ClientSet, ctx context.Context, res kube.Reso
 	if v, ok := res.(*v1core.Service); ok {
 		return contr.Services().Create(ctx, v, opts)
 	}
-	return nil, kube.ErrorInvalidTypeCreate(k)
+	return nil, kubernetes.ErrorInvalidTypeCreate(k)
 }
 
 func (k Service) Name() string        { return string(k) }

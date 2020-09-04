@@ -29,7 +29,9 @@ func TestNewContainer(t *testing.T) {
 	if container.GetResource(TestSecret).GetName() != "test-name" {
 		t.Error()
 	}
-	obj = &v1core.Service{}
+	obj = &v1core.Service{
+		Status: v1core.ServiceStatus{LoadBalancer: v1core.LoadBalancerStatus{Ingress: nil}},
+	}
 	container.Update(TestService, obj)
 	if container.GetResource(TestService) != obj {
 		t.Error()

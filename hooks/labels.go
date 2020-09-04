@@ -4,21 +4,21 @@ import "github.com/bukowa/kube"
 
 // HookSetLabels overrides Labels
 var SetLabels = func(labels map[string]string) kube.Hook {
-	return func(manager kube.Container) error {
-		return manager.ForEachResource(func(res kube.Resource) error {
+	return func(cont kube.Container) error {
+		cont.ForEachResource(func(res kube.Resource) {
 			res.SetLabels(labels)
-			return nil
 		})
+		return nil
 	}
 }
 
 // HookUpdateLabels updates Labels with new values
 var UpdateLabels = func(labels map[string]string) kube.Hook {
-	return func(manager kube.Container) error {
-		return manager.ForEachResource(func(res kube.Resource) error {
+	return func(cont kube.Container) error {
+		cont.ForEachResource(func(res kube.Resource) {
 			res.SetLabels(updateMapString(res.GetLabels(), labels))
-			return nil
 		})
+		return nil
 	}
 }
 
