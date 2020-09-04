@@ -10,7 +10,7 @@ func NewController(container Container, hooks Hooks, opts ...Option) Controller 
 	if hooks == nil {
 		hooks = make(Hooks)
 	}
-	c := &controller{
+	c := &BasicController{
 		Container:  container,
 		CreateOpts: v1meta.CreateOptions{},
 		DeleteOpts: v1meta.DeleteOptions{},
@@ -27,8 +27,8 @@ func NewController(container Container, hooks Hooks, opts ...Option) Controller 
 	return c
 }
 
-// controller implements Controller
-type controller struct {
+// BasicController implements Controller
+type BasicController struct {
 	Container
 
 	clientset  ClientSet
@@ -38,17 +38,17 @@ type controller struct {
 	hooks      Hooks
 }
 
-func (c *controller) ClientSet() ClientSet {
+func (c *BasicController) ClientSet() ClientSet {
 	return c.clientset
 }
 
-func (c *controller) RegisterHooks(hooks Hooks) {
+func (c *BasicController) RegisterHooks(hooks Hooks) {
 	for t, h := range hooks {
 		c.hooks[t] = append(c.hooks[t], h...)
 	}
 }
 
-func (c *controller) GetKind(kind Kind) (res Resource, err error) {
+func (c *BasicController) GetKind(kind Kind) (res Resource, err error) {
 	// pre hooks
 	if err = runHooks(c, PreGet); err != nil {
 		return
@@ -63,7 +63,7 @@ func (c *controller) GetKind(kind Kind) (res Resource, err error) {
 	return res, runHooks(c, PostGet)
 }
 
-func (c *controller) DeleteKind(kind Kind) error {
+func (c *BasicController) DeleteKind(kind Kind) error {
 	// pre hooks
 	if err := runHooks(c, PreDelete); err != nil {
 		return err
@@ -78,7 +78,7 @@ func (c *controller) DeleteKind(kind Kind) error {
 	return runHooks(c, PostDelete)
 }
 
-func (c *controller) CreateKind(kind Kind) (res Resource, err error) {
+func (c *BasicController) CreateKind(kind Kind) (res Resource, err error) {
 	// pre hooks
 	if err = runHooks(c, PreCreate); err != nil {
 		return
@@ -87,9 +87,7 @@ func (c *controller) CreateKind(kind Kind) (res Resource, err error) {
 	// create
 	if res, err = kind.Create(c.clientset, context.Background(), c.GetResource(kind), c.CreateOpts); err != nil {
 		return
-	}
-	// update
-	if err = c.Update(kind, res); err != nil {
+	} else if err = c.Update(kind, res); err != nil {
 		return
 	}
 
@@ -97,19 +95,19 @@ func (c *controller) CreateKind(kind Kind) (res Resource, err error) {
 	return res, runHooks(c, PostCreate)
 }
 
-func (c *controller) CreateContainer() []error {
+func (c *BasicController) CreateContainer() []error {
 	return c.create(context.Background())
 }
 
-func (c *controller) DeleteContainer() []error {
+func (c *BasicController) DeleteContainer() []error {
 	return c.delete(context.Background())
 }
 
-func (c *controller) GetContainer() []error {
+func (c *BasicController) GetContainer() []error {
 	return c.get(context.Background())
 }
 
-func (c *controller) create(ctx context.Context) (errs []error) {
+func (c *BasicController) create(ctx context.Context) (errs []error) {
 	// pre hook
 	if err := runHooks(c, PreCreate); err != nil {
 		return []error{err}
@@ -139,7 +137,7 @@ func (c *controller) create(ctx context.Context) (errs []error) {
 	return errsReturn(errs)
 }
 
-func (c *controller) delete(ctx context.Context) (errs []error) {
+func (c *BasicController) delete(ctx context.Context) (errs []error) {
 	// pre hooks
 	if err := runHooks(c, PreDelete); err != nil {
 		return []error{err}
@@ -163,7 +161,7 @@ func (c *controller) delete(ctx context.Context) (errs []error) {
 	return errsReturn(errs)
 }
 
-func (c *controller) get(ctx context.Context) (errs []error) {
+func (c *BasicController) get(ctx context.Context) (errs []error) {
 	// pre hooks
 	if err := runHooks(c, PreGet); err != nil {
 		return []error{err}
@@ -199,7 +197,7 @@ func errsReturn(errs []error) []error {
 	return errs
 }
 
-func runHooks(c *controller, t HookType) error {
+func runHooks(c *BasicController, t HookType) error {
 	if c.hooks[t] == nil {
 		return nil
 	}

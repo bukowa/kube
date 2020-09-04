@@ -5,29 +5,29 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-type Option func(*controller)
+type Option func(*BasicController)
 
 var WithClientSet = func(clientset ClientSet) Option {
-	return func(c *controller) {
+	return func(c *BasicController) {
 		c.clientset = clientset
 	}
 }
 
 var WithKubernetesClient = func(namespace string, client *kubernetes.Clientset) Option {
-	return func(c *controller) {
+	return func(c *BasicController) {
 		c.clientset = NewClientSet(namespace, client)
 	}
 }
 
 var CreateOpts = func(opts v1meta.CreateOptions) Option {
-	return func(c *controller) {
+	return func(c *BasicController) {
 		c.CreateOpts = opts
 	}
 }
 
-// OptionContainerCopy creates controller copying the Container
+// OptionContainerCopy creates BasicController copying the Container
 var ContainerCopy = func() Option {
-	return func(c *controller) {
+	return func(c *BasicController) {
 		c.Container = c.Container.Copy()
 	}
 }
