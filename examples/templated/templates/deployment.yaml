@@ -13,5 +13,6 @@ spec:
     spec:
       containers:
         - name: alpine
+          image: alpine
           command: ["/bin/sh"]
           args: ["-c", "echo Hello World && sleep infinite"]

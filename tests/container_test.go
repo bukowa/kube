@@ -1,47 +1,65 @@
-package kube
+package tests
 
 import (
 	"github.com/bukowa/kube"
-	"github.com/bukowa/kube/kubernetes/core/v1"
-	v1core "k8s.io/api/core/v1"
+	kv1apps "github.com/bukowa/kube/kubernetes/apps/v1"
+	kv1core "github.com/bukowa/kube/kubernetes/core/v1"
+	kv1beta1net "github.com/bukowa/kube/kubernetes/networking/v1beta1"
 	"testing"
 )
 
-const TestSecret v1.Secret = "secret"
-const TestService v1.Service = "service"
+const (
+	deployment            kv1apps.Deployment            = "deployment"
+	configmap             kv1core.ConfigMap             = "configmap"
+	namespace             kv1core.Namespace             = "namespace"
+	persistentvolumeclaim kv1core.PersistentVolumeClaim = "persistentvolumeclaim"
+	secret                kv1core.Secret                = "secret"
+	service               kv1core.Service               = "service"
+	ingress               kv1beta1net.Ingress           = "ingress"
+)
 
+var (
+	group = []kube.Kind{
+		namespace, secret, configmap, persistentvolumeclaim, deployment, service, ingress,
+	}
+)
+
+// it doesnt panic with proper kinds
 func TestNewContainer(t *testing.T) {
-	container := kube.NewContainer(TestSecret, TestService)
-	if container.Secret(TestSecret) == nil {
-		t.Error()
-	}
-	if container.Service(TestService) == nil {
-		t.Error()
-	}
-	if v, ok := container.GetResource(TestSecret).(*v1core.Secret); !ok {
-		t.Error(v)
-	}
-	if v, ok := container.GetResource(TestService).(*v1core.Service); !ok {
-		t.Error(v)
-	}
-	obj := container.GetResource(TestSecret)
-	obj.SetName("test-name")
-	if container.GetResource(TestSecret).GetName() != "test-name" {
-		t.Error()
-	}
-	obj = &v1core.Service{
-		Status: v1core.ServiceStatus{LoadBalancer: v1core.LoadBalancerStatus{Ingress: nil}},
-	}
-	container.Update(TestService, obj)
-	if container.GetResource(TestService) != obj {
-		t.Error()
-	}
-	container.ForEachResource(func(resource kube.Resource) {
-		resource.SetName("new-name")
-	})
-	container.ForEachKind(func(kind kube.Kind) {
-		if container.GetResource(kind).GetName() != "new-name" {
-			t.Error()
+	kube.NewContainer(group...)
+}
+
+// duplicate kube.Kind are not allowed
+func TestNewContainerDuplicates(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("did not panic")
+		} else {
+			if r != "duplicate kind secret" {
+				t.Error(r)
+			}
 		}
-	})
+	}()
+	kube.NewContainer(secret, secret)
+}
+
+// we should return a copy
+func TestNewContainerCopy(t *testing.T) {
+	c := kube.NewContainer(group...)
+	c2 := c.Copy()
+
+	c.GetResource(secret).SetName("1")
+	c2.GetResource(secret).SetName("2")
+
+	if c.GetResource(secret).GetName() != "1" {
+		t.Error()
+	}
+
+	if c2.GetResource(secret).GetName() != "2" {
+		t.Error()
+	}
+
+	if c.GetResource(secret) == c2.GetResource(secret) {
+		t.Error()
+	}
 }

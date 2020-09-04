@@ -32,13 +32,19 @@ func main() {
 	if err != nil {
 		panic(kubeClient)
 	}
-	controller := templated.NewController(Container, data, nil, kube.WithKubernetesClient(namespace, kubeClient))
+	controller := templated.NewController(Container, &data, kube.Hooks{}, kube.WithKubernetesClient(namespace, kubeClient))
 	errs := controller.CreateContainer()
 	if errs != nil {
 		for _, err := range errs {
 			log.Print(err)
 		}
 	}
-	//deployment := controller.Deployment(Deployment)
-	//log.Print(deployment.Namespace, deployment.Name, deployment.Spec.Template.Spec.Containers)
+	deployment := controller.Deployment(Deployment)
+	log.Print(deployment.Namespace, deployment.Name, deployment.ObjectMeta.UID, deployment.ObjectMeta.CreationTimestamp)
+	// 2020/09/04 19:39:26 templated-namespacetemplated-deployment 000099af-14e4-4c1c-928b-581df9e1b0fa 2020-09-04 19:39:27 +0200 CEST
+
+	deployment = controller.Deployment(Deployment)
+	controller.GetContainer()
+	log.Print(deployment.Namespace, deployment.Name, deployment.ObjectMeta.UID, deployment.ObjectMeta.CreationTimestamp)
+
 }

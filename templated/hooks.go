@@ -6,7 +6,7 @@ import (
 	k8syaml "k8s.io/apimachinery/pkg/util/yaml"
 )
 
-// Hooks
+// Hooks are registered by default, they execute templates before each step
 var Hooks = func(tc *Container, data interface{}) kube.Hooks {
 	return kube.Hooks{
 		kube.PreGet:    []kube.Hook{Hook(tc, data)},

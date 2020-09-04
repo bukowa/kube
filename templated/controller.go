@@ -52,3 +52,7 @@ func NewContainer(path string, kinds ...kube.Kind) *Container {
 func (tc *Container) Copy() kube.Container {
 	return NewContainer(tc.path, tc.kinds...)
 }
+
+func (tc *Container) Self() kube.Container {
+	return tc
+}

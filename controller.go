@@ -22,6 +22,7 @@ func NewController(container Container, hooks Hooks, opts ...Option) Controller 
 		opt(c)
 	}
 	if c.clientset == nil {
+		// todo
 		panic("clientset is nil, you can provide some with opts")
 	}
 	return c

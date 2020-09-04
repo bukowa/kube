@@ -5,14 +5,12 @@ import (
 	v1apps "k8s.io/api/apps/v1"
 	v1core "k8s.io/api/core/v1"
 	v1beta1net "k8s.io/api/networking/v1beta1"
-	"log"
 )
 
 // NewContainer creates new container for Kind's
 func NewContainer(kinds ...Kind) *container {
 	binding := make(map[Kind]Resource, len(kinds))
 	for _, kind := range kinds {
-		log.Print(kind)
 		if binding[kind] != nil {
 			panic(fmt.Sprintf("duplicate kind %s", kind))
 		}
@@ -69,63 +67,49 @@ func (c *container) ForEachKind(f func(Kind)) {
 
 func (c *container) Namespace(kind Kind) *v1core.Namespace {
 	if res := c.GetResource(kind); res != nil {
-		if v, ok := kind.Cast().(*v1core.Namespace); ok {
-			return v
-		}
+		return res.(*v1core.Namespace)
 	}
 	return nil
 }
 
 func (c *container) Deployment(kind Kind) *v1apps.Deployment {
 	if res := c.GetResource(kind); res != nil {
-		if v, ok := kind.Cast().(*v1apps.Deployment); ok {
-			return v
-		}
+		return res.(*v1apps.Deployment)
 	}
 	return nil
 }
 
 func (c *container) Ingress(kind Kind) *v1beta1net.Ingress {
 	if res := c.GetResource(kind); res != nil {
-		if v, ok := kind.Cast().(*v1beta1net.Ingress); ok {
-			return v
-		}
+		return res.(*v1beta1net.Ingress)
 	}
 	return nil
 }
 
 func (c *container) Secret(kind Kind) *v1core.Secret {
 	if res := c.GetResource(kind); res != nil {
-		if v, ok := kind.Cast().(*v1core.Secret); ok {
-			return v
-		}
+		return res.(*v1core.Secret)
 	}
 	return nil
 }
 
 func (c *container) Service(kind Kind) *v1core.Service {
 	if res := c.GetResource(kind); res != nil {
-		if v, ok := kind.Cast().(*v1core.Service); ok {
-			return v
-		}
+		return res.(*v1core.Service)
 	}
 	return nil
 }
 
 func (c *container) ConfigMap(kind Kind) *v1core.ConfigMap {
 	if res := c.GetResource(kind); res != nil {
-		if v, ok := kind.Cast().(*v1core.ConfigMap); ok {
-			return v
-		}
+		return res.(*v1core.ConfigMap)
 	}
 	return nil
 }
 
 func (c *container) PersistentVolumeClaim(kind Kind) *v1core.PersistentVolumeClaim {
 	if res := c.GetResource(kind); res != nil {
-		if v, ok := kind.Cast().(*v1core.PersistentVolumeClaim); ok {
-			return v
-		}
+		return res.(*v1core.PersistentVolumeClaim)
 	}
 	return nil
 }
