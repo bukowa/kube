@@ -6,17 +6,17 @@ import (
 	k8syaml "k8s.io/apimachinery/pkg/util/yaml"
 )
 
-// Hooks are registered by default, they execute templates before each step
-var Hooks = func(tc *Container, data interface{}) kube.Hooks {
+// TemplateHooks are registered by default, they execute templates before each step
+var TemplateHooks = func(tc *Container, data interface{}) kube.Hooks {
 	return kube.Hooks{
-		kube.PreGet:    []kube.Hook{Hook(tc, data)},
-		kube.PreCreate: []kube.Hook{Hook(tc, data)},
-		kube.PreDelete: []kube.Hook{Hook(tc, data)},
+		kube.PreGet:    []kube.Hook{TemplateHook(tc, data)},
+		kube.PreCreate: []kube.Hook{TemplateHook(tc, data)},
+		kube.PreDelete: []kube.Hook{TemplateHook(tc, data)},
 	}
 }
 
-// Hook executes templates with given data
-var Hook = func(tc *Container, data interface{}) kube.Hook {
+// TemplateHook executes templates with given data
+var TemplateHook = func(tc *Container, data interface{}) kube.Hook {
 	return func(c kube.Container) (err error) {
 		c.ForEachKind(func(k kube.Kind) {
 			buff := bytes.NewBuffer(nil)

@@ -37,7 +37,7 @@ func main() {
 		panic(err)
 	}
 	// create controller for container
-	controller := templated.NewController(Container, &data, nil, kube.WithKubernetesClient(namespace, kubeClient))
+	controller := templated.NewController(Container, &data, kube.WithKubernetesClient(namespace, kubeClient))
 
 	// create all kinds in container
 	errs := controller.CreateContainer()

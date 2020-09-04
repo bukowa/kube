@@ -55,7 +55,7 @@ type Container interface {
 	PersistentVolumeClaim(Kind) *v1core.PersistentVolumeClaim
 }
 
-// ResourcesManager is meant to manipulate Resource state in kubernetes
+// ClientSet is meant to manipulate Resource state in kubernetes
 type ClientSet interface {
 	Namespace() string
 	Client() *kubernetes.Clientset
@@ -85,4 +85,11 @@ type Controller interface {
 	GetContainer() []error    // GetContainer() performs kubernetes get request for all Kind's in Container
 	CreateContainer() []error // CreateContainer() performs kubernetes create request for all Kind's in Container
 	DeleteContainer() []error // DeleteContainer() performs kubernetes delete request for all Kind's in Container
+}
+
+// todo hooks per kind
+type HooksManager interface {
+	Hooks() Hooks
+	Override(Hooks)
+	Register(Hooks)
 }

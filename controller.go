@@ -6,20 +6,19 @@ import (
 )
 
 // NewController creates new Controller
-func NewController(container Container, hooks Hooks, opts ...Option) Controller {
-	if hooks == nil {
-		hooks = make(Hooks)
-	}
+func NewController(container Container, opts ...Option) Controller {
 	c := &BasicController{
 		Container:  container,
 		CreateOpts: v1meta.CreateOptions{},
 		DeleteOpts: v1meta.DeleteOptions{},
 		GetOpts:    v1meta.GetOptions{},
-		hooks:      hooks,
+		hooks:      make(Hooks),
 	}
+
 	for _, opt := range opts {
 		opt(c)
 	}
+
 	if c.clientset == nil {
 		// todo
 		panic("KubeClientSet is nil, you can provide some with opts")

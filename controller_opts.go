@@ -7,6 +7,18 @@ import (
 
 type Option func(*BasicController)
 
+var WithHooks = func(hooks Hooks) Option {
+	return func(c *BasicController) {
+		for t, h := range hooks {
+			if existing := c.hooks[t]; existing == nil {
+				c.hooks[t] = h
+			} else {
+				c.hooks[t] = append(c.hooks[t], h...)
+			}
+		}
+	}
+}
+
 var WithClientSet = func(clientset ClientSet) Option {
 	return func(c *BasicController) {
 		c.clientset = clientset
@@ -19,14 +31,14 @@ var WithKubernetesClient = func(namespace string, client *kubernetes.Clientset) 
 	}
 }
 
-var CreateOpts = func(opts v1meta.CreateOptions) Option {
+var WithCreateOpts = func(opts v1meta.CreateOptions) Option {
 	return func(c *BasicController) {
 		c.CreateOpts = opts
 	}
 }
 
 // OptionContainerCopy creates BasicController copying the Container
-var ContainerCopy = func() Option {
+var WithContainerCopy = func() Option {
 	return func(c *BasicController) {
 		c.Container = c.Container.Copy()
 	}
