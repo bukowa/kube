@@ -3,7 +3,6 @@ package kube
 import (
 	"context"
 	v1meta "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 )
 
 // NewController creates new Controller
@@ -28,12 +27,6 @@ func NewController(container Container, hooks Hooks, opts ...Option) Controller 
 	return c
 }
 
-var WithKubernetesClient = func(namespace string, client *kubernetes.Clientset) Option {
-	return func(c *controller) {
-		c.clientset = NewClientSet(namespace, client)
-	}
-}
-
 // controller implements Controller
 type controller struct {
 	Container
@@ -45,15 +38,14 @@ type controller struct {
 	hooks      Hooks
 }
 
-// RegisterHooks
+func (c *controller) ClientSet() ClientSet {
+	return c.clientset
+}
+
 func (c *controller) RegisterHooks(hooks Hooks) {
 	for t, h := range hooks {
 		c.hooks[t] = append(c.hooks[t], h...)
 	}
-}
-
-func (c *controller) Hooks() Hooks {
-	return c.hooks
 }
 
 func (c *controller) GetKind(kind Kind) (Resource, error) {
@@ -61,20 +53,36 @@ func (c *controller) GetKind(kind Kind) (Resource, error) {
 }
 
 func (c *controller) DeleteKind(kind Kind) error {
-	return kind.Delete(c.clientset, context.Background(), c.GetResource(kind).GetName(), c.DeleteOpts)
-}
+	// pre hooks
+	if err := runHooks(c, PreDelete); err != nil {
+		return err
+	}
 
-func (c *controller) ClientSet() ClientSet {
-	return c.clientset
+	// delete
+	if err := kind.Delete(c.clientset, context.Background(), c.GetResource(kind).GetName(), c.DeleteOpts); err != nil {
+		return err
+	}
+
+	// post hooks
+	return runHooks(c, PostDelete)
 }
 
 func (c *controller) CreateKind(kind Kind) (res Resource, err error) {
+	// pre hooks
 	if err = runHooks(c, PreCreate); err != nil {
 		return
 	}
+
+	// create
 	if res, err = kind.Create(c.clientset, context.Background(), c.GetResource(kind), c.CreateOpts); err != nil {
 		return
 	}
+	// update
+	if err = c.Update(kind, res); err != nil {
+		return
+	}
+
+	// post hooks
 	return res, runHooks(c, PostCreate)
 }
 
@@ -91,10 +99,11 @@ func (c *controller) GetContainer() []error {
 }
 
 func (c *controller) create(ctx context.Context) (errs []error) {
-	// PreCreate hook
+	// pre hook
 	if err := runHooks(c, PreCreate); err != nil {
 		return []error{err}
 	}
+
 	// helper function
 	var handle = func(k Kind, r Resource, e error) {
 		if e != nil {
@@ -105,12 +114,13 @@ func (c *controller) create(ctx context.Context) (errs []error) {
 			errs = append(errs, e)
 		}
 	}
-	// create each kind
+	// create all
 	c.ForEachKind(func(kind Kind) {
 		res, err := kind.Create(c.clientset, ctx, c.GetResource(kind), c.CreateOpts)
 		handle(kind, res, err)
 	})
-	// PostCreate hook
+
+	// post  hook
 	if err := runHooks(c, PostCreate); err != nil {
 		errs = append(errs, err)
 	}
@@ -118,21 +128,22 @@ func (c *controller) create(ctx context.Context) (errs []error) {
 }
 
 func (c *controller) delete(ctx context.Context) (errs []error) {
+	// pre hooks
+	if err := runHooks(c, PreDelete); err != nil {
+		return []error{err}
+	}
 
+	// helper function
 	var handle = func(e error) {
 		if e != nil {
 			errs = append(errs, e)
 		}
 	}
-
-	// pre hook
-	if err := runHooks(c, PreDelete); err != nil {
-		return []error{err}
-	}
 	// delete all
 	c.ForEachKind(func(kind Kind) {
 		handle(kind.Delete(c.clientset, ctx, c.GetResource(kind).GetName(), c.DeleteOpts))
 	})
+
 	// post hook
 	if err := runHooks(c, PostDelete); err != nil {
 		errs = append(errs, err)
@@ -141,6 +152,12 @@ func (c *controller) delete(ctx context.Context) (errs []error) {
 }
 
 func (c *controller) get(ctx context.Context) (errs []error) {
+	// pre hooks
+	if err := runHooks(c, PreGet); err != nil {
+		return []error{err}
+	}
+
+	// helper function
 	var handle = func(k Kind, r Resource, e error) {
 		if e != nil {
 			errs = append(errs, e)
@@ -150,18 +167,13 @@ func (c *controller) get(ctx context.Context) (errs []error) {
 			errs = append(errs, e)
 		}
 	}
-	// pre hook
-	if err := runHooks(c, PreGet); err != nil {
-		return []error{err}
-	}
-
 	// get all
 	c.ForEachKind(func(kind Kind) {
 		res, err := kind.Get(c.clientset, ctx, c.GetResource(kind).GetName(), c.GetOpts)
 		handle(kind, res, err)
 	})
 
-	// post hook
+	// post hooks
 	if err := runHooks(c, PostGet); err != nil {
 		errs = append(errs, err)
 	}

@@ -1,12 +1,21 @@
 package kube
 
-import v1meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+import (
+	v1meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+)
 
 type Option func(*controller)
 
 var WithClientSet = func(clientset ClientSet) Option {
 	return func(c *controller) {
 		c.clientset = clientset
+	}
+}
+
+var WithKubernetesClient = func(namespace string, client *kubernetes.Clientset) Option {
+	return func(c *controller) {
+		c.clientset = NewClientSet(namespace, client)
 	}
 }
 
