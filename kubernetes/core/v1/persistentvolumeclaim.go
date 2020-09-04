@@ -10,15 +10,15 @@ import (
 
 type PersistentVolumeClaim string
 
-func (k PersistentVolumeClaim) Delete(contr kube.ClientSet, ctx context.Context, name string, opts v1meta.DeleteOptions) error {
+func (k PersistentVolumeClaim) Delete(contr kube.BasicClientSet, ctx context.Context, name string, opts v1meta.DeleteOptions) error {
 	return contr.PersistentVolumeClaims().Delete(ctx, name, opts)
 }
 
-func (k PersistentVolumeClaim) Get(contr kube.ClientSet, ctx context.Context, name string, opts v1meta.GetOptions) (kube.Resource, error) {
+func (k PersistentVolumeClaim) Get(contr kube.BasicClientSet, ctx context.Context, name string, opts v1meta.GetOptions) (kube.Resource, error) {
 	return contr.PersistentVolumeClaims().Get(ctx, name, opts)
 }
 
-func (k PersistentVolumeClaim) Create(contr kube.ClientSet, ctx context.Context, res kube.Resource, opts v1meta.CreateOptions) (kube.Resource, error) {
+func (k PersistentVolumeClaim) Create(contr kube.BasicClientSet, ctx context.Context, res kube.Resource, opts v1meta.CreateOptions) (kube.Resource, error) {
 	if v, ok := res.(*v1core.PersistentVolumeClaim); ok {
 		return contr.PersistentVolumeClaims().Create(ctx, v, opts)
 	}

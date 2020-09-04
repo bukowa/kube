@@ -10,15 +10,15 @@ import (
 
 type Secret string
 
-func (k Secret) Delete(contr kube.ClientSet, ctx context.Context, name string, opts v1meta.DeleteOptions) error {
+func (k Secret) Delete(contr kube.BasicClientSet, ctx context.Context, name string, opts v1meta.DeleteOptions) error {
 	return contr.Secrets().Delete(ctx, name, opts)
 }
 
-func (k Secret) Get(contr kube.ClientSet, ctx context.Context, name string, opts v1meta.GetOptions) (kube.Resource, error) {
+func (k Secret) Get(contr kube.BasicClientSet, ctx context.Context, name string, opts v1meta.GetOptions) (kube.Resource, error) {
 	return contr.Secrets().Get(ctx, name, opts)
 }
 
-func (k Secret) Create(contr kube.ClientSet, ctx context.Context, res kube.Resource, opts v1meta.CreateOptions) (kube.Resource, error) {
+func (k Secret) Create(contr kube.BasicClientSet, ctx context.Context, res kube.Resource, opts v1meta.CreateOptions) (kube.Resource, error) {
 	if v, ok := res.(*v1core.Secret); ok {
 		return contr.Secrets().Create(ctx, v, opts)
 	}

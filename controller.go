@@ -22,7 +22,7 @@ func NewController(container Container, hooks Hooks, opts ...Option) Controller 
 	}
 	if c.clientset == nil {
 		// todo
-		panic("clientset is nil, you can provide some with opts")
+		panic("KubeClientSet is nil, you can provide some with opts")
 	}
 	return c
 }
@@ -31,14 +31,14 @@ func NewController(container Container, hooks Hooks, opts ...Option) Controller 
 type controller struct {
 	Container
 
-	clientset  ClientSet
+	clientset  BasicClientSet
 	CreateOpts v1meta.CreateOptions
 	DeleteOpts v1meta.DeleteOptions
 	GetOpts    v1meta.GetOptions
 	hooks      Hooks
 }
 
-func (c *controller) ClientSet() ClientSet {
+func (c *controller) ClientSet() BasicClientSet {
 	return c.clientset
 }
 
@@ -114,6 +114,7 @@ func (c *controller) create(ctx context.Context) (errs []error) {
 			errs = append(errs, e)
 		}
 	}
+
 	// create all
 	c.ForEachKind(func(kind Kind) {
 		res, err := kind.Create(c.clientset, ctx, c.GetResource(kind), c.CreateOpts)

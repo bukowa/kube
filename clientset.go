@@ -7,52 +7,52 @@ import (
 	typedv1beta1net "k8s.io/client-go/kubernetes/typed/networking/v1beta1"
 )
 
-// NewClientSet creates new clientset for a given namespace
-func NewClientSet(namespace string, client *kubernetes.Clientset) *clientset {
-	return &clientset{
+// NewClientSet creates new KubeClientSet for a given namespace
+func NewClientSet(namespace string, client *kubernetes.Clientset) ClientSet {
+	return &BasicClientSet{
 		namespace: namespace,
 		client:    client,
 	}
 }
 
-// clientset implements ClientSet
-type clientset struct {
+// KubeClientSet implements BasicClientSet
+type BasicClientSet struct {
 	namespace string
 	client    *kubernetes.Clientset
 }
 
-func (c *clientset) Namespace() string {
+func (c *BasicClientSet) Namespace() string {
 	return c.namespace
 }
 
-func (c *clientset) Client() *kubernetes.Clientset {
+func (c *BasicClientSet) Client() *kubernetes.Clientset {
 	return c.client
 }
 
-func (c *clientset) Namespaces() typedv1core.NamespaceInterface {
+func (c *BasicClientSet) Namespaces() typedv1core.NamespaceInterface {
 	return c.client.CoreV1().Namespaces()
 }
 
-func (c *clientset) Deployments() typedv1apps.DeploymentInterface {
+func (c *BasicClientSet) Deployments() typedv1apps.DeploymentInterface {
 	return c.client.AppsV1().Deployments(c.namespace)
 }
 
-func (c *clientset) Ingresses() typedv1beta1net.IngressInterface {
+func (c *BasicClientSet) Ingresses() typedv1beta1net.IngressInterface {
 	return c.client.NetworkingV1beta1().Ingresses(c.namespace)
 }
 
-func (c *clientset) Secrets() typedv1core.SecretInterface {
+func (c *BasicClientSet) Secrets() typedv1core.SecretInterface {
 	return c.client.CoreV1().Secrets(c.namespace)
 }
 
-func (c *clientset) Services() typedv1core.ServiceInterface {
+func (c *BasicClientSet) Services() typedv1core.ServiceInterface {
 	return c.client.CoreV1().Services(c.namespace)
 }
 
-func (c *clientset) ConfigMaps() typedv1core.ConfigMapInterface {
+func (c *BasicClientSet) ConfigMaps() typedv1core.ConfigMapInterface {
 	return c.client.CoreV1().ConfigMaps(c.namespace)
 }
 
-func (c *clientset) PersistentVolumeClaims() typedv1core.PersistentVolumeClaimInterface {
+func (c *BasicClientSet) PersistentVolumeClaims() typedv1core.PersistentVolumeClaimInterface {
 	return c.client.CoreV1().PersistentVolumeClaims(c.namespace)
 }

@@ -7,7 +7,7 @@ import (
 
 type Option func(*controller)
 
-var WithClientSet = func(clientset ClientSet) Option {
+var WithClientSet = func(clientset BasicClientSet) Option {
 	return func(c *controller) {
 		c.clientset = clientset
 	}

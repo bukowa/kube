@@ -10,15 +10,15 @@ import (
 
 type Service string
 
-func (k Service) Delete(contr kube.ClientSet, ctx context.Context, name string, opts v1meta.DeleteOptions) error {
+func (k Service) Delete(contr kube.BasicClientSet, ctx context.Context, name string, opts v1meta.DeleteOptions) error {
 	return contr.Services().Delete(ctx, name, opts)
 }
 
-func (k Service) Get(contr kube.ClientSet, ctx context.Context, name string, opts v1meta.GetOptions) (kube.Resource, error) {
+func (k Service) Get(contr kube.BasicClientSet, ctx context.Context, name string, opts v1meta.GetOptions) (kube.Resource, error) {
 	return contr.Services().Get(ctx, name, opts)
 }
 
-func (k Service) Create(contr kube.ClientSet, ctx context.Context, res kube.Resource, opts v1meta.CreateOptions) (kube.Resource, error) {
+func (k Service) Create(contr kube.BasicClientSet, ctx context.Context, res kube.Resource, opts v1meta.CreateOptions) (kube.Resource, error) {
 	if v, ok := res.(*v1core.Service); ok {
 		return contr.Services().Create(ctx, v, opts)
 	}
