@@ -13,17 +13,17 @@ type Deployment string
 func (d Deployment) Name() string        { return string(d) }
 func (d Deployment) Cast() kube.Resource { return &v1.Deployment{} }
 
-func (d Deployment) Delete(client kube.BasicClientSet, ctx context.Context, name string, opts v1meta.DeleteOptions) error {
+func (d Deployment) Delete(client kube.ClientSet, ctx context.Context, name string, opts v1meta.DeleteOptions) error {
 	return client.Deployments().Delete(ctx, name, opts)
 }
 
-func (d Deployment) Get(contr kube.BasicClientSet, ctx context.Context, name string, opts v1meta.GetOptions) (kube.Resource, error) {
-	return contr.Deployments().Get(ctx, name, opts)
+func (d Deployment) Get(client kube.ClientSet, ctx context.Context, name string, opts v1meta.GetOptions) (kube.Resource, error) {
+	return client.Deployments().Get(ctx, name, opts)
 }
 
-func (d Deployment) Create(contr kube.BasicClientSet, ctx context.Context, res kube.Resource, opts v1meta.CreateOptions) (kube.Resource, error) {
+func (d Deployment) Create(client kube.ClientSet, ctx context.Context, res kube.Resource, opts v1meta.CreateOptions) (kube.Resource, error) {
 	if v, ok := res.(*v1.Deployment); ok {
-		return contr.Deployments().Create(ctx, v, opts)
+		return client.Deployments().Create(ctx, v, opts)
 	}
 	return nil, kubernetes.ErrorInvalidTypeCreate(d)
 }

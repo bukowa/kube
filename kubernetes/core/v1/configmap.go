@@ -10,17 +10,17 @@ import (
 
 type ConfigMap string
 
-func (k ConfigMap) Delete(contr kube.BasicClientSet, ctx context.Context, name string, opts v1meta.DeleteOptions) error {
-	return contr.ConfigMaps().Delete(ctx, name, opts)
+func (k ConfigMap) Delete(client kube.ClientSet, ctx context.Context, name string, opts v1meta.DeleteOptions) error {
+	return client.ConfigMaps().Delete(ctx, name, opts)
 }
 
-func (k ConfigMap) Get(contr kube.BasicClientSet, ctx context.Context, name string, opts v1meta.GetOptions) (kube.Resource, error) {
-	return contr.ConfigMaps().Get(ctx, name, opts)
+func (k ConfigMap) Get(client kube.ClientSet, ctx context.Context, name string, opts v1meta.GetOptions) (kube.Resource, error) {
+	return client.ConfigMaps().Get(ctx, name, opts)
 }
 
-func (k ConfigMap) Create(contr kube.BasicClientSet, ctx context.Context, res kube.Resource, opts v1meta.CreateOptions) (kube.Resource, error) {
+func (k ConfigMap) Create(client kube.ClientSet, ctx context.Context, res kube.Resource, opts v1meta.CreateOptions) (kube.Resource, error) {
 	if v, ok := res.(*v1core.ConfigMap); ok {
-		return contr.ConfigMaps().Create(ctx, v, opts)
+		return client.ConfigMaps().Create(ctx, v, opts)
 	}
 	return nil, kubernetes.ErrorInvalidTypeCreate(k)
 }

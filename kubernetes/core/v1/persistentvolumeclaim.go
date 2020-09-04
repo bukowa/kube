@@ -10,17 +10,17 @@ import (
 
 type PersistentVolumeClaim string
 
-func (k PersistentVolumeClaim) Delete(contr kube.BasicClientSet, ctx context.Context, name string, opts v1meta.DeleteOptions) error {
-	return contr.PersistentVolumeClaims().Delete(ctx, name, opts)
+func (k PersistentVolumeClaim) Delete(client kube.ClientSet, ctx context.Context, name string, opts v1meta.DeleteOptions) error {
+	return client.PersistentVolumeClaims().Delete(ctx, name, opts)
 }
 
-func (k PersistentVolumeClaim) Get(contr kube.BasicClientSet, ctx context.Context, name string, opts v1meta.GetOptions) (kube.Resource, error) {
-	return contr.PersistentVolumeClaims().Get(ctx, name, opts)
+func (k PersistentVolumeClaim) Get(client kube.ClientSet, ctx context.Context, name string, opts v1meta.GetOptions) (kube.Resource, error) {
+	return client.PersistentVolumeClaims().Get(ctx, name, opts)
 }
 
-func (k PersistentVolumeClaim) Create(contr kube.BasicClientSet, ctx context.Context, res kube.Resource, opts v1meta.CreateOptions) (kube.Resource, error) {
+func (k PersistentVolumeClaim) Create(client kube.ClientSet, ctx context.Context, res kube.Resource, opts v1meta.CreateOptions) (kube.Resource, error) {
 	if v, ok := res.(*v1core.PersistentVolumeClaim); ok {
-		return contr.PersistentVolumeClaims().Create(ctx, v, opts)
+		return client.PersistentVolumeClaims().Create(ctx, v, opts)
 	}
 	return nil, kubernetes.ErrorInvalidTypeCreate(k)
 }

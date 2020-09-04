@@ -77,11 +77,11 @@ type Controller interface {
 	RegisterHooks(Hooks) // RegisterHooks accepts hooks that Controller may use
 	ClientSet() ClientSet
 
-	CreateKind(Kind) (Resource, error) // CreateKind(Kind) performs kubernetes create request for underlying Resource
 	GetKind(Kind) (Resource, error)    // GetKind(Kind) performs kubernetes get request updating underlying Resource
-	DeleteKind(Kind) error
+	CreateKind(Kind) (Resource, error) // CreateKind(Kind) performs kubernetes create request for underlying Resource
+	DeleteKind(Kind) error             // DeleteKind(Kind) performs kubernetes delete request for underlying Resource
 
-	CreateContainer() []error
-	DeleteContainer() []error
-	GetContainer() []error
+	GetContainer() []error    // GetContainer() performs kubernetes get request for all Kind's in Container
+	CreateContainer() []error // CreateContainer() performs kubernetes create request for all Kind's in Container
+	DeleteContainer() []error // DeleteContainer() performs kubernetes delete request for all Kind's in Container
 }

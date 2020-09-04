@@ -31,14 +31,14 @@ func NewController(container Container, hooks Hooks, opts ...Option) Controller 
 type controller struct {
 	Container
 
-	clientset  BasicClientSet
+	clientset  ClientSet
 	CreateOpts v1meta.CreateOptions
 	DeleteOpts v1meta.DeleteOptions
 	GetOpts    v1meta.GetOptions
 	hooks      Hooks
 }
 
-func (c *controller) ClientSet() BasicClientSet {
+func (c *controller) ClientSet() ClientSet {
 	return c.clientset
 }
 
