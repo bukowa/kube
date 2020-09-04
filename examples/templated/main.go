@@ -21,30 +21,56 @@ type Data struct {
 	Label     string
 }
 
-func main() {
-	namespace := "templated-namespace"
-	data := &Data{
-		Namespace: "templated-namespace",
+var (
+	namespace = "templated-namespace4"
+	data      = &Data{
+		Namespace: namespace,
 		Name:      "templated-deployment",
 		Label:     "hello-world",
 	}
+)
+
+func main() {
+	// create kubernetes client
 	kubeClient, err := examples.GetKubernetesClient()
 	if err != nil {
-		panic(kubeClient)
+		panic(err)
 	}
-	controller := templated.NewController(Container, &data, kube.Hooks{}, kube.WithKubernetesClient(namespace, kubeClient))
+	// create controller for container
+	controller := templated.NewController(Container, &data, nil, kube.WithKubernetesClient(namespace, kubeClient))
+
+	// create all kinds in container
 	errs := controller.CreateContainer()
 	if errs != nil {
 		for _, err := range errs {
 			log.Print(err)
 		}
 	}
+
+	// grab underlying Deployment
 	deployment := controller.Deployment(Deployment)
 	log.Print(deployment.Namespace, deployment.Name, deployment.ObjectMeta.UID, deployment.ObjectMeta.CreationTimestamp)
 	// 2020/09/04 19:39:26 templated-namespacetemplated-deployment 000099af-14e4-4c1c-928b-581df9e1b0fa 2020-09-04 19:39:27 +0200 CEST
 
-	deployment = controller.Deployment(Deployment)
-	controller.GetContainer()
-	log.Print(deployment.Namespace, deployment.Name, deployment.ObjectMeta.UID, deployment.ObjectMeta.CreationTimestamp)
+	// register hook
+	controller.RegisterHooks(kube.Hooks{
+		kube.PostGet: []kube.Hook{
+			func(container kube.Container) error {
+				return controller.DeleteKind(Deployment)
+			},
+		},
+	})
+
+	// perform get on Deployment deleting it - because of registered hook
+	_, err = controller.GetKind(Deployment)
+	if err != nil {
+		panic(err)
+	}
+
+	// now make sure its deleted
+	_, err = controller.GetKind(Deployment)
+	if err == nil {
+		panic("its not deleted")
+	}
 
 }
