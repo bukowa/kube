@@ -77,6 +77,7 @@ type Controller interface {
 	RegisterHooks(Hooks) // RegisterHooks accepts hooks that Controller may use
 	ClientSet() ClientSet
 
+	// todo should hooks run here?
 	GetKind(Kind) (Resource, error)    // GetKind(Kind) performs kubernetes get request updating underlying Resource
 	CreateKind(Kind) (Resource, error) // CreateKind(Kind) performs kubernetes create request for underlying Resource
 	DeleteKind(Kind) error             // DeleteKind(Kind) performs kubernetes delete request for underlying Resource
