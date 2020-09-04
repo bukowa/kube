@@ -48,8 +48,19 @@ func (c *controller) RegisterHooks(hooks Hooks) {
 	}
 }
 
-func (c *controller) GetKind(kind Kind) (Resource, error) {
-	return kind.Get(c.clientset, context.Background(), c.GetResource(kind).GetName(), c.GetOpts)
+func (c *controller) GetKind(kind Kind) (res Resource, err error) {
+	// pre hooks
+	if err = runHooks(c, PreGet); err != nil {
+		return
+	}
+
+	// get
+	if res, err = kind.Get(c.clientset, context.Background(), c.GetResource(kind).GetName(), c.GetOpts); err != nil {
+		return
+	}
+
+	// post hooks
+	return res, runHooks(c, PostGet)
 }
 
 func (c *controller) DeleteKind(kind Kind) error {
