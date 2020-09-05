@@ -7,6 +7,8 @@ import (
 
 type Option func(*BasicController)
 
+// todo fail after
+
 // register hooks as first to run
 var WithHooksFirst = func(hooks Hooks) Option {
 	return func(c *BasicController) {

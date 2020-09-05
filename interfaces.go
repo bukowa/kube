@@ -38,6 +38,7 @@ type Kind interface {
 
 // Container is meant to hold binding between Kind and it's Resource
 type Container interface {
+	Kinds() []Kind                  // Kinds() should returns container Kind's
 	Self() Container                // Self() returns the Container instance itself
 	Copy() Container                // Copy() should return a copy of Container so it can be declared once per package
 	Update(Kind, Resource) error    // Update() overrides underlying Kind Resource

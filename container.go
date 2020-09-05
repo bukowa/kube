@@ -28,6 +28,10 @@ type container struct {
 	binding map[Kind]Resource
 }
 
+func (c *container) Kinds() []Kind {
+	return c.kinds
+}
+
 func (c *container) Self() Container {
 	return c
 }

@@ -11,7 +11,6 @@ import (
 // using templates to manipulate kube.Resource's
 type Container struct {
 	kube.Container
-	kinds     []kube.Kind
 	path      string
 	templates *template.Template
 }
@@ -50,9 +49,13 @@ func NewContainer(path string, kinds ...kube.Kind) *Container {
 }
 
 func (tc *Container) Copy() kube.Container {
-	return NewContainer(tc.path, tc.kinds...)
+	return NewContainer(tc.path, tc.Kinds()...)
 }
 
 func (tc *Container) Self() kube.Container {
 	return tc
+}
+
+func (tc *Container) Templates() *template.Template {
+	return tc.templates
 }
