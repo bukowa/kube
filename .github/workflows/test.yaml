@@ -15,6 +15,7 @@ jobs:
           go version
 
   testing.templated.build.Dockerfile:
-    runs:
-      using: 'docker'
-      image: testing.templated.build.Dockerfile
+    runs-on: 'ubuntu-20.04'
+    steps:
+      - uses: 'actions/checkout@v2'
+      - run: docker build -f testing.templated.build.Dockerfile .
