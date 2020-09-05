@@ -37,7 +37,17 @@ func main() {
 		panic(err)
 	}
 	// create controller for container
-	controller := templated.NewController(Container, &data, kube.WithKubernetesClient(namespace, kubeClient))
+	controller := templated.NewController(Container, &data,
+		kube.WithKubernetesClient(namespace, kubeClient))
+
+	// after calling get delete deployment
+	controller.Configure(kube.WithHooks(map[kube.HookType][]kube.Hook{
+		kube.PostGet: {
+			func(container kube.Container) error {
+				return controller.DeleteKind(Deployment)
+			},
+		},
+	}))
 
 	// create all kinds in container
 	errs := controller.CreateContainer()
@@ -51,15 +61,6 @@ func main() {
 	deployment := controller.Deployment(Deployment)
 	log.Print(deployment.Namespace, deployment.Name, deployment.ObjectMeta.UID, deployment.ObjectMeta.CreationTimestamp)
 	// 2020/09/04 19:39:26 templated-namespacetemplated-deployment 000099af-14e4-4c1c-928b-581df9e1b0fa 2020-09-04 19:39:27 +0200 CEST
-
-	// register hook
-	controller.RegisterHooks(kube.Hooks{
-		kube.PostGet: []kube.Hook{
-			func(container kube.Container) error {
-				return controller.DeleteKind(Deployment)
-			},
-		},
-	})
 
 	// perform get on Deployment deleting it - because of registered hook
 	_, err = controller.GetKind(Deployment)

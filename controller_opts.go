@@ -7,6 +7,20 @@ import (
 
 type Option func(*BasicController)
 
+// register hooks as first to run
+var WithHooksFirst = func(hooks Hooks) Option {
+	return func(c *BasicController) {
+		for t, h := range hooks {
+			if existing := c.hooks[t]; existing == nil {
+				c.hooks[t] = h
+			} else {
+				h = append(h, c.hooks[t]...)
+				c.hooks[t] = h
+			}
+		}
+	}
+}
+
 var WithHooks = func(hooks Hooks) Option {
 	return func(c *BasicController) {
 		for t, h := range hooks {

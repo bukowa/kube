@@ -14,14 +14,8 @@ func NewController(container Container, opts ...Option) Controller {
 		GetOpts:    v1meta.GetOptions{},
 		hooks:      make(Hooks),
 	}
-
 	for _, opt := range opts {
 		opt(c)
-	}
-
-	if c.clientset == nil {
-		// todo
-		panic("KubeClientSet is nil, you can provide some with opts")
 	}
 	return c
 }
@@ -37,14 +31,16 @@ type BasicController struct {
 	hooks      Hooks
 }
 
-func (c *BasicController) ClientSet() ClientSet {
-	return c.clientset
+func (c *BasicController) Configure(opt Option) {
+	opt(c)
 }
 
-func (c *BasicController) RegisterHooks(hooks Hooks) {
-	for t, h := range hooks {
-		c.hooks[t] = append(c.hooks[t], h...)
-	}
+func (c *BasicController) Hooks() Hooks {
+	return c.hooks
+}
+
+func (c *BasicController) ClientSet() ClientSet {
+	return c.clientset
 }
 
 func (c *BasicController) GetKind(kind Kind) (res Resource, err error) {

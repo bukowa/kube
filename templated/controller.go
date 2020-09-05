@@ -15,7 +15,7 @@ func NewController(container *Container, data interface{}, opts ...kube.Option) 
 		Controller: kube.NewController(container, opts...),
 	}
 	c.container = c.Self().(*Container)
-	// register hooks in order
-	c.RegisterHooks(TemplateHooks(c.container, data))
+	// configure hooks to run first
+	c.Configure(kube.WithHooksFirst(TemplateHooks(c.container, data)))
 	return c
 }

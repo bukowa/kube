@@ -74,7 +74,8 @@ type ClientSet interface {
 type Controller interface {
 	Container // Container of which Controller is in control
 
-	RegisterHooks(Hooks) // RegisterHooks accepts hooks that Controller may use
+	Hooks() Hooks
+	Configure(option Option) // Configure accepts Option to modify Controller
 	ClientSet() ClientSet
 
 	// todo should hooks run here?
