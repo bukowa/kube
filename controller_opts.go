@@ -9,6 +9,13 @@ type Option func(*BasicController)
 
 // todo fail after
 
+// delete all hooks
+var WithoutHooks = func() Option {
+	return func(c *BasicController) {
+		c.hooks = make(Hooks)
+	}
+}
+
 // register hooks as first to run
 var WithHooksFirst = func(hooks Hooks) Option {
 	return func(c *BasicController) {
