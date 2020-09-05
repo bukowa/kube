@@ -10,6 +10,9 @@ import (
 
 type Secret string
 
+func (k Secret) Name() string        { return string(k) }
+func (k Secret) Cast() kube.Resource { return &v1core.Secret{} }
+
 func (k Secret) Delete(client kube.ClientSet, ctx context.Context, name string, opts v1meta.DeleteOptions) error {
 	return client.Secrets().Delete(ctx, name, opts)
 }
@@ -24,6 +27,3 @@ func (k Secret) Create(client kube.ClientSet, ctx context.Context, res kube.Reso
 	}
 	return nil, kubernetes.ErrorInvalidTypeCreate(k)
 }
-
-func (k Secret) Name() string        { return string(k) }
-func (k Secret) Cast() kube.Resource { return &v1core.Secret{} }
