@@ -6,7 +6,6 @@ import (
 	kv1core "github.com/bukowa/kube/kubernetes/core/v1"
 	kv1beta1net "github.com/bukowa/kube/kubernetes/networking/v1beta1"
 	"github.com/bukowa/kube/templated"
-	"testing"
 )
 
 const (
@@ -19,27 +18,14 @@ const (
 	Ingress               kv1beta1net.Ingress           = "ingress.yaml"
 )
 
-var Group = []kube.Kind{
-	Deployment, Secret, Configmap, Namespace, Persistentvolumeclaim, Service, Ingress,
-}
+var (
+	Container = templated.NewContainer("testing/templated/templates/*.yaml", Group...)
+	Group     = []kube.Kind{
+		Deployment, Secret, Configmap, Namespace, Persistentvolumeclaim, Service, Ingress,
+	}
+	Data = &data{Name: "new"}
+)
 
-type Data struct {
+type data struct {
 	Name string
-}
-
-func TestContainer(t *testing.T) {
-	c := templated.NewContainer("tests/templated/templates", Group...)
-	d := &Data{Name: "new"}
-
-	if err := templated.TemplateHook(c, d)(c); err != nil {
-		t.Error(err)
-	}
-
-	for _, kind := range Group {
-		if resource := c.GetResource(kind); resource == nil {
-			t.Errorf("resource: %s is nil", kind.Name())
-		} else if resource.GetName() != "new" {
-			t.Errorf("resource: %s name is wrong", kind.Name())
-		}
-	}
 }

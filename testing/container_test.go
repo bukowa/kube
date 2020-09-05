@@ -1,4 +1,4 @@
-package tests
+package testing
 
 import (
 	"github.com/bukowa/kube"

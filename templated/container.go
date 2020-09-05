@@ -2,7 +2,9 @@ package templated
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/bukowa/kube"
+	"os"
 	"strings"
 	"text/template"
 )
@@ -29,7 +31,7 @@ func NewContainer(path string, kinds ...kube.Kind) *Container {
 	} else if err != nil {
 		// allow relative path if nothing was found
 		if templates, err = template.ParseGlob("templates/*.yaml"); err != nil {
-			panic(err)
+			panic(fmt.Sprintf("%s | working dir: %s | parsed path: %s", err, wd(), path))
 		}
 	}
 
@@ -58,4 +60,12 @@ func (tc *Container) Self() kube.Container {
 
 func (tc *Container) Templates() *template.Template {
 	return tc.templates
+}
+
+func wd() string {
+	wd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	return wd
 }
