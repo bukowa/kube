@@ -9,24 +9,32 @@ import (
 // TemplateHooks are registered by default, they execute templates before each step
 var TemplateHooks = func(tc *Container, data interface{}) kube.Hooks {
 	return kube.Hooks{
-		kube.PreGet:    []kube.Hook{TemplateHook(tc, data)},
-		kube.PreCreate: []kube.Hook{TemplateHook(tc, data)},
-		kube.PreDelete: []kube.Hook{TemplateHook(tc, data)},
+		kube.PreGet:    {TemplateHook(tc, data)},
+		kube.PreCreate: {TemplateHook(tc, data)},
+		kube.PreDelete: {TemplateHook(tc, data)},
 	}
 }
 
 // TemplateHook executes templates with given data
 var TemplateHook = func(tc *Container, data interface{}) kube.Hook {
 	return func(c kube.Container) (err error) {
-		c.ForEachKind(func(k kube.Kind) {
-			buff := bytes.NewBuffer(nil)
-			if err = tc.templates.ExecuteTemplate(buff, k.Name(), data); err != nil {
+		for _, kind := range c.Kinds() {
+			if err = ExecuteTemplate(tc, kind, data); err != nil {
 				return
 			}
-			if err = k8syaml.NewYAMLOrJSONDecoder(buff, buff.Len()).Decode(c.GetResource(k)); err != nil {
-				return
-			}
-		})
+		}
 		return
 	}
+}
+
+func ExecuteTemplate(tc *Container, k kube.Kind, d interface{}) (err error) {
+	buff := bytes.NewBuffer(nil)
+	if err = tc.templates.ExecuteTemplate(buff, k.Name(), d); err != nil {
+		return
+	}
+	// decode into Kind's Resource
+	if err = k8syaml.NewYAMLOrJSONDecoder(buff, buff.Len()).Decode(tc.GetResource(k)); err != nil {
+		return
+	}
+	return nil
 }
